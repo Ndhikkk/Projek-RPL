@@ -8,17 +8,11 @@
     <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shrink-0">
         <div>
             <h1 class="text-3xl font-extrabold text-white flex items-center gap-3">
-                <i data-lucide="youtube" class="w-8 h-8 text-red-500"></i> Video Tutorial
+                <i data-lucide="video" class="w-8 h-8 text-red-500"></i> Video Tutorial
             </h1>
             <p class="text-slate-400 text-sm mt-1 max-w-2xl">
                 Pelajari cara merakit komputer selangkah demi selangkah melalui seri video tutorial komprehensif kami. Mulai dari persiapan hingga pengujian komponen.
             </p>
-        </div>
-        
-        <!-- Search/Filter -->
-        <div class="relative w-full sm:w-64">
-            <input type="text" id="search-tutorial" onkeyup="filterTutorial()" placeholder="Cari tutorial..." class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors">
-            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
         </div>
     </div>
 
@@ -46,27 +40,7 @@
 
 @push('scripts')
 <script>
-    // Search/Filter Function
-    function filterTutorial() {
-        const input = document.getElementById('search-tutorial');
-        const filter = input.value.toLowerCase();
-        const grid = document.getElementById('tutorial-grid');
-        const cards = grid.getElementsByClassName('glass-card');
-
-        for (let i = 0; i < cards.length; i++) {
-            const title = cards[i].getElementsByTagName("h3")[0];
-            const desc = cards[i].getElementsByTagName("p")[0];
-            if (title || desc) {
-                const textValue = (title ? title.textContent || title.innerText : "") + " " + 
-                                  (desc ? desc.textContent || desc.innerText : "");
-                if (textValue.toLowerCase().indexOf(filter) > -1) {
-                    cards[i].style.display = "";
-                } else {
-                    cards[i].style.display = "none";
-                }
-            }       
-        }
-    }
+    // Scripts for tutorial (if any)
 </script>
 @endpush
 @endsection
