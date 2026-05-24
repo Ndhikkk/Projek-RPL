@@ -13,52 +13,8 @@
     <!-- Icons (Lucide) -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Tailwind CSS CDN -->
-    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
-    <style type="text/tailwindcss">
-        @theme {
-            --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-                'Segoe UI Symbol', 'Noto Color Emoji';
-            --color-slate-850: #151e2e;
-            --color-slate-900: #0f172a;
-            --color-neon-cyan: #00f0ff;
-            --color-neon-purple: #b026ff;
-            
-            --animate-float: float 6s ease-in-out infinite;
-            --animate-glow: glow 2s ease-in-out infinite alternate;
-
-            @keyframes float {
-                0%, 100% { transform: translateY(0); }
-                50% { transform: translateY(-10px); }
-            }
-            @keyframes glow {
-                from { box-shadow: 0 0 10px #00f0ff, 0 0 20px #00f0ff; }
-                to { box-shadow: 0 0 20px #b026ff, 0 0 30px #b026ff; }
-            }
-        }
-
-        @layer utilities {
-            .glass {
-                @apply bg-slate-900/50 backdrop-blur-md border border-white/10;
-            }
-            .glass-card {
-                @apply bg-slate-800/60 backdrop-blur-lg border border-slate-700/50 shadow-xl;
-            }
-            .text-gradient {
-                @apply bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-purple-500;
-            }
-        }
-
-        body {
-            @apply bg-slate-950 text-slate-200 antialiased selection:bg-cyan-500/30 selection:text-cyan-200;
-        }
-
-        /* Custom Scrollbar for inner containers */
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(51, 65, 85, 0.8); border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(71, 85, 105, 1); }
-    </style>
+    <!-- Vite Assets -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-slate-950 text-slate-200 antialiased min-h-screen flex flex-col font-sans relative overflow-x-hidden">
     
