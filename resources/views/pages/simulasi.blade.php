@@ -11,12 +11,17 @@
                 <i data-lucide="mouse-pointer-click" class="w-6 h-6 sm:w-8 sm:h-8 text-cyan-400"></i> Perakitan Lanjut
             </h1>
             <p class="text-slate-400 text-xs sm:text-sm mt-1">
-                Drag & Drop dari inventory, klik pengunci manual, dan tarik kabel (*wiring*) langsung di dalam *casing*.
+                Pilih komponen dari inventaris, pasang ke posisinya, kencangkan pengunci, dan hubungkan kabel secara langsung di dalam casing virtual.
             </p>
         </div>
         
         <div class="flex flex-wrap gap-2 sm:gap-3 items-center w-full xl:w-auto justify-end">
-            <div class="glass px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg flex items-center gap-2 border-cyan-500/30">
+            <!-- Power On Button (Hidden initially) -->
+            <button id="btn-power-on" onclick="startBootSequence()" class="hidden px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 border border-green-400 text-white font-bold rounded-lg transition-all items-center gap-2 shadow-[0_0_20px_rgba(34,197,94,0.6)] animate-pulse">
+                <i data-lucide="power" class="w-5 h-5"></i> POWER ON
+            </button>
+
+            <div id="status-container" class="glass px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg flex items-center gap-2 border-cyan-500/30">
                 <div id="status-indicator" class="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_10px_rgba(0,240,255,0.8)]"></div>
                 <span id="status-text" class="text-xs sm:text-sm font-bold text-cyan-50">Memuat...</span>
             </div>
@@ -449,9 +454,107 @@
                 </div>
 
                 </div> <!-- End Case Wrapper -->
+                
+                <!-- Monitor Modal (Hidden) -->
+                <div id="monitor-modal" class="absolute inset-0 z-[200] hidden flex items-center justify-center bg-black/90 backdrop-blur-sm transition-all">
+                    <div class="w-full max-w-4xl bg-black border-4 border-slate-800 rounded-xl shadow-[0_0_50px_rgba(34,211,238,0.3)] aspect-video relative overflow-hidden flex flex-col">
+                        <!-- Monitor Bezel -->
+                        <div class="absolute bottom-0 w-full h-6 bg-slate-900 border-t border-slate-700 flex justify-center items-center z-20">
+                            <span class="text-[8px] text-slate-500 font-bold uppercase tracking-widest">RAKITKUY GAMING</span>
+                            <div class="absolute right-4 w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_5px_#3b82f6]"></div>
+                        </div>
+                        
+                        <!-- Screen Content -->
+                        <div class="flex-grow p-6 font-mono text-green-500 text-sm md:text-base relative h-full overflow-hidden z-10" id="screen-content">
+                            <!-- Boot Sequence (Dynamically inserted) -->
+                            <div id="boot-text" class="whitespace-pre-line"></div>
+                            
+                            <!-- OS Desktop (Hidden) -->
+                            <div id="os-screen" class="hidden absolute inset-0 bg-cover bg-center flex flex-col items-center justify-center" style="background-image: url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1920&auto=format&fit=crop');">
+                                <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+                                
+                                <!-- Results Panel -->
+                                <div class="relative z-10 glass-card bg-slate-900/80 p-8 rounded-2xl border border-cyan-500/30 max-w-lg w-full text-center shadow-2xl">
+                                    <h2 class="text-3xl font-black text-white mb-6">Build Selesai!</h2>
+                                    
+                                    <div class="grid grid-cols-2 gap-4 mb-6 text-left">
+                                        <div class="bg-black/50 p-4 rounded-xl border border-white/10">
+                                            <div class="text-xs text-slate-400 mb-1 uppercase tracking-wider">Benchmark FPS</div>
+                                            <div class="text-2xl font-black text-green-400 flex items-center gap-2"><i data-lucide="zap" class="w-6 h-6"></i> <span id="bench-fps">0</span> FPS</div>
+                                            <div class="text-xs text-slate-500 mt-1">Cyberpunk 2077 (Ultra)</div>
+                                        </div>
+                                        <div class="bg-black/50 p-4 rounded-xl border border-white/10">
+                                            <div class="text-xs text-slate-400 mb-1 uppercase tracking-wider">Suhu Sistem</div>
+                                            <div class="text-2xl font-black text-orange-400 flex items-center gap-2"><i data-lucide="thermometer" class="w-6 h-6"></i> <span id="bench-temp">0</span>°C</div>
+                                            <div class="text-xs text-slate-500 mt-1">Under Load</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <button onclick="location.reload()" class="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold rounded-xl transition-all shadow-[0_0_15px_rgba(34,211,238,0.5)] flex justify-center items-center gap-2">
+                                        <i data-lucide="rotate-ccw" class="w-5 h-5"></i> Rakit Ulang
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             </div>
         </div>
+    </div>
+    
+    <!-- AI Chat Widget -->
+    <div class="fixed bottom-6 right-6 z-[100] flex flex-col items-end">
+        <!-- Chat Window -->
+        <div id="ai-chat-window" class="hidden w-80 sm:w-96 bg-slate-900 border border-cyan-500/30 rounded-2xl shadow-2xl overflow-hidden flex flex-col mb-4 transition-all transform origin-bottom-right duration-300 scale-95 opacity-0 h-[400px]">
+            <!-- Chat Header -->
+            <div class="bg-gradient-to-r from-cyan-600 to-blue-600 p-3 flex justify-between items-center text-white">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                        <i data-lucide="bot" class="w-5 h-5"></i>
+                    </div>
+                    <span class="font-bold">Tech Guru AI</span>
+                </div>
+                <button onclick="toggleChat()" class="hover:text-cyan-200 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <!-- Chat Messages -->
+            <div id="chat-messages" class="flex-grow p-4 overflow-y-auto bg-slate-950 flex flex-col gap-3 custom-scrollbar text-sm">
+                <!-- Initial Message -->
+                <div class="flex gap-2 w-5/6">
+                    <div class="w-6 h-6 rounded-full bg-cyan-600 flex-shrink-0 flex items-center justify-center mt-1">
+                        <i data-lucide="bot" class="w-3 h-3 text-white"></i>
+                    </div>
+                    <div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tl-sm border border-slate-700">
+                        Halo! Saya Asisten AI RakitKuy. Jika bingung soal merakit PC, tanyakan saja pada saya!
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Typing Indicator (Hidden) -->
+            <div id="typing-indicator" class="hidden px-4 pb-2 bg-slate-950">
+                <div class="flex gap-2 w-16 bg-slate-800 p-2 rounded-2xl rounded-tl-sm">
+                    <div class="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce"></div>
+                    <div class="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                    <div class="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                </div>
+            </div>
+
+            <!-- Chat Input -->
+            <form id="chat-form" onsubmit="sendChatMessage(event)" class="p-3 bg-slate-900 border-t border-slate-800 flex gap-2">
+                <input type="text" id="chat-input" placeholder="Ketik pertanyaan Anda..." autocomplete="off" class="flex-grow bg-slate-800 border border-slate-700 text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-cyan-500 transition-colors">
+                <button type="submit" class="bg-cyan-600 hover:bg-cyan-500 text-white w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-lg">
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- Chat Toggle Button -->
+        <button onclick="toggleChat()" class="w-14 h-14 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(0,240,255,0.4)] hover:shadow-[0_0_30px_rgba(0,240,255,0.6)] hover:-translate-y-1 transition-all group">
+            <i data-lucide="message-square-text" class="w-6 h-6 group-hover:scale-110 transition-transform"></i>
+        </button>
     </div>
 </div>
 

@@ -32,7 +32,7 @@
                         </h1>
 
                         <p class="text-lg md:text-xl text-slate-400 mb-10 max-w-2xl mx-auto font-light leading-relaxed">
-                            Pelajari setiap komponen, cara kerja, dan praktek merakit komputer dalam laboratorium virtual 3D
+                            Pelajari setiap komponen, cara kerja, dan praktek merakit komputer dalam laboratorium virtual 2D
                             interaktif dari mana saja.
                         </p>
 

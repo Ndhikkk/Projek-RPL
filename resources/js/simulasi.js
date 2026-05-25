@@ -68,11 +68,12 @@ const steps = [
 
     function updateStepUI() {
         if(currentStepIndex >= steps.length) {
-            document.getElementById('status-indicator').className = 'w-3 h-3 rounded-full bg-green-400 shadow-[0_0_15px_rgba(34,197,94,0.8)]';
-            document.getElementById('status-text').className = 'text-sm font-black text-green-100 uppercase tracking-widest';
-            document.getElementById('status-text').innerText = 'PC SELESAI DIRAKIT!';
+            document.getElementById('status-container').classList.add('hidden');
+            const pwrBtn = document.getElementById('btn-power-on');
+            if (pwrBtn) pwrBtn.classList.remove('hidden');
+            
             document.getElementById('pc-case').classList.add('shadow-[0_0_80px_rgba(34,197,94,0.4)]', 'border-green-500/50');
-            showAlert('Sukses!', 'PC berhasil dirakit sepenuhnya.', 'green');
+            showAlert('Sukses!', 'PC berhasil dirakit sepenuhnya. Klik POWER ON untuk menyalakan.', 'green');
             return;
         }
 
@@ -412,6 +413,142 @@ const steps = [
         }
     }
     
+    // --- BOOT SEQUENCE & BENCHMARK ---
+    function startBootSequence() {
+        document.getElementById('monitor-modal').classList.remove('hidden');
+        const bootText = document.getElementById('boot-text');
+        bootText.innerHTML = '';
+        
+        const sequence = [
+            "American Megatrends Inc.",
+            "BIOS Date 05/25/2026 10:32:11 Ver 09.00.02",
+            "CPU: Intel(R) Core(TM) i7-13700K CPU @ 3.40GHz",
+            "Speed: 3.40 GHz",
+            "Memory: 32768 MB (DDR5 6000MHz)",
+            "",
+            "Initializing USB Controllers .. Done.",
+            "Detecting NVMe M.2 980 PRO 1TB .. Done.",
+            "Auto-detecting GPU RTX 4090 .. Done.",
+            "",
+            "Checking NVRAM...",
+            "Update OK!",
+            "Booting from Hard Disk..."
+        ];
+
+        let i = 0;
+        const typeInterval = setInterval(() => {
+            if (i < sequence.length) {
+                bootText.innerHTML += sequence[i] + "<br/>";
+                i++;
+            } else {
+                clearInterval(typeInterval);
+                setTimeout(() => {
+                    bootText.innerHTML = '';
+                    showOS();
+                }, 1000);
+            }
+        }, 300);
+    }
+
+    function showOS() {
+        document.getElementById('os-screen').classList.remove('hidden');
+        
+        // Random benchmark values
+        document.getElementById('bench-fps').innerText = Math.floor(Math.random() * (165 - 120 + 1) + 120);
+        document.getElementById('bench-temp').innerText = Math.floor(Math.random() * (75 - 60 + 1) + 60);
+    }
+
+    // --- AI CHATBOT LOGIC ---
+    function toggleChat() {
+        const chatWindow = document.getElementById('ai-chat-window');
+        if (chatWindow.classList.contains('hidden')) {
+            chatWindow.classList.remove('hidden');
+            // Give a tiny delay for transition to work if scale-95 opacity-0 is applied
+            setTimeout(() => {
+                chatWindow.classList.remove('scale-95', 'opacity-0');
+                chatWindow.classList.add('scale-100', 'opacity-100');
+            }, 10);
+            document.getElementById('chat-input').focus();
+        } else {
+            chatWindow.classList.remove('scale-100', 'opacity-100');
+            chatWindow.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                chatWindow.classList.add('hidden');
+            }, 300);
+        }
+    }
+
+    function appendMessage(sender, text) {
+        const chatMessages = document.getElementById('chat-messages');
+        const isUser = sender === 'user';
+        const bg = isUser ? 'bg-cyan-600 text-white' : 'bg-slate-800 text-slate-200 border border-slate-700';
+        const rounded = isUser ? 'rounded-2xl rounded-tr-sm' : 'rounded-2xl rounded-tl-sm';
+        const align = isUser ? 'justify-end' : 'justify-start';
+        
+        let iconHtml = '';
+        if (!isUser) {
+            iconHtml = `<div class="w-6 h-6 rounded-full bg-cyan-600 flex-shrink-0 flex items-center justify-center mt-1">
+                            <i data-lucide="bot" class="w-3 h-3 text-white"></i>
+                        </div>`;
+        }
+
+        const msgHtml = `
+            <div class="flex gap-2 w-full ${align}">
+                ${!isUser ? iconHtml : ''}
+                <div class="${bg} p-3 ${rounded} max-w-[80%]">
+                    ${text}
+                </div>
+            </div>
+        `;
+        
+        chatMessages.insertAdjacentHTML('beforeend', msgHtml);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        lucide.createIcons();
+    }
+
+    async function sendChatMessage(e) {
+        e.preventDefault();
+        const input = document.getElementById('chat-input');
+        const text = input.value.trim();
+        if (!text) return;
+        
+        // Show user message
+        appendMessage('user', text);
+        input.value = '';
+        
+        // Show typing indicator
+        const indicator = document.getElementById('typing-indicator');
+        const chatMessages = document.getElementById('chat-messages');
+        indicator.classList.remove('hidden');
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        try {
+            const token = document.querySelector('meta[name="csrf-token"]').content;
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': token
+                },
+                body: JSON.stringify({ message: text })
+            });
+            
+            const data = await response.json();
+            indicator.classList.add('hidden');
+            
+            if (response.ok) {
+                appendMessage('ai', data.reply);
+            } else {
+                appendMessage('ai', 'Maaf, terjadi kesalahan saat menghubungi server AI.');
+            }
+        } catch (error) {
+            console.error(error);
+            indicator.classList.add('hidden');
+            appendMessage('ai', 'Maaf, gagal terhubung ke server.');
+        }
+    }
+
     // --- FULLSCREEN TOGGLE ---
     function toggleFullScreen() {
         // Fokuskan fullscreen ke area kerja simulasi saja agar melebar penuh!
@@ -494,3 +631,6 @@ window.dragEnter = dragEnter;
 window.dragLeave = dragLeave;
 window.drop = drop;
 window.handleManualClick = handleManualClick;
+window.startBootSequence = startBootSequence;
+window.toggleChat = toggleChat;
+window.sendChatMessage = sendChatMessage;

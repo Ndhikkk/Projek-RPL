@@ -21,3 +21,5 @@ Route::get('/simulasi', function () {
 Route::get('/quiz', function () {
     return view('pages.quiz');
 })->name('quiz');
+
+Route::post('/api/chat', [\App\Http\Controllers\Api\ChatController::class, 'handle'])->name('api.chat');
