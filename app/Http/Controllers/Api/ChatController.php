@@ -79,6 +79,9 @@ class ChatController extends Controller
                 // Konversi markdown sederhana ke HTML (Bold)
                 $reply = preg_replace('/(\*\*|__)(.*?)\1/', '<b>$2</b>', $reply);
                 
+                // Tambahkan info model di akhir pesan
+                $reply .= "\n\n<div class='mt-3 pt-2 border-t border-slate-700/50 text-[10px] text-slate-500 text-right'>Model: {$modelName}</div>";
+                
                 return response()->json([
                     'reply' => nl2br($reply) 
                 ]);
