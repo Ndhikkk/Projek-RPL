@@ -25,9 +25,11 @@ class ChatController extends Controller
         }
 
         try {
+            $cleanApiKey = trim($apiKey);
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-            ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={$apiKey}", [
+                'x-goog-api-key' => $cleanApiKey,
+            ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent", [
                 'contents' => [
                     [
                         'parts' => [
@@ -48,10 +50,14 @@ class ChatController extends Controller
                     'reply' => nl2br($reply) 
                 ]);
             } else {
-                return $this->simulatedReply($message);
+                return response()->json([
+                    'reply' => "ERROR DARI GOOGLE: HTTP " . $response->status() . " - " . $response->body()
+                ]);
             }
         } catch (\Exception $e) {
-            return $this->simulatedReply($message);
+            return response()->json([
+                'reply' => "ERROR SERVER RAILWAY: " . $e->getMessage()
+            ]);
         }
     }
 
