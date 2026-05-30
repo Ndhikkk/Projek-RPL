@@ -29,7 +29,7 @@ class ChatController extends Controller
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'x-goog-api-key' => $cleanApiKey,
-            ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent", [
+            ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent", [
                 'contents' => [
                     [
                         'parts' => [
