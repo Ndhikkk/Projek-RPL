@@ -26,10 +26,43 @@ class ChatController extends Controller
 
         try {
             $cleanApiKey = trim($apiKey);
+            
+            // Auto-discovery model dari Google untuk menghindari error 404
+            $modelName = 'gemini-1.5-flash'; // default fallback
+            $modelsResponse = Http::withHeaders([
+                'x-goog-api-key' => $cleanApiKey,
+            ])->get("https://generativelanguage.googleapis.com/v1beta/models");
+            
+            if ($modelsResponse->successful()) {
+                $modelsData = $modelsResponse->json();
+                $availableModels = [];
+                foreach ($modelsData['models'] ?? [] as $m) {
+                    if (in_array('generateContent', $m['supportedGenerationMethods'] ?? [])) {
+                        $availableModels[] = str_replace('models/', '', $m['name']);
+                    }
+                }
+                
+                if (!empty($availableModels)) {
+                    // Cari model yang mengandung kata 'flash' atau 'pro', jika tidak ada, gunakan yang pertama
+                    $selectedModel = $availableModels[0];
+                    foreach ($availableModels as $am) {
+                        if (str_contains($am, 'flash') || str_contains($am, 'pro')) {
+                            $selectedModel = $am;
+                            break;
+                        }
+                    }
+                    $modelName = $selectedModel;
+                }
+            } else {
+                return response()->json([
+                    'reply' => "ERROR FETCH MODELS: HTTP " . $modelsResponse->status() . " - " . $modelsResponse->body()
+                ]);
+            }
+
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'x-goog-api-key' => $cleanApiKey,
-            ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent", [
+            ])->post("https://generativelanguage.googleapis.com/v1beta/models/{$modelName}:generateContent", [
                 'contents' => [
                     [
                         'parts' => [
