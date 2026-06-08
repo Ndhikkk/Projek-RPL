@@ -634,3 +634,4 @@ window.handleManualClick = handleManualClick;
 window.startBootSequence = startBootSequence;
 window.toggleChat = toggleChat;
 window.sendChatMessage = sendChatMessage;
+window.resetSimulation = resetSimulation;
